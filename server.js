@@ -1,4 +1,4 @@
-const { Server } = require('node-osc');
+const { Server, Client } = require('node-osc');
 const http = require('http')
 const fs = require('fs');
 
@@ -8,18 +8,33 @@ var oscServer = new Server(process.env.SYNC_OSC_PORT, process.env.SYNC_OSC_IP, (
 	console.log('OSC Server is listening', process.env.SYNC_OSC_IP, process.env.SYNC_OSC_PORT);
 });
 
-oscServer.on('/new_audio', function (msg, data) {
+// Max client
+// var oscClient = new Client(process.env.MAX_OSC_IP, process.env.MAX_OSC_PORT);
+
+oscServer.on('/new_audio', function (msg, req) {
 	console.log(`Message: ${msg}`, req);
+	let audio_data = JSON.parse(msg[1])
+	console.log('audio_data', audio_data)
 	// oscServer.close();
+	let new_filepath = `audios/${audio_data.id}.wav`
+	downloadAudio(audio_data).then(file_data => {
+		fs.writeFile(new_filepath, file_data, function (err) {
+			if (err) {
+				return console.log(err);
+			}
+			console.log('wrote file:', new_filepath)
+			// oscClient.send('/update')
+		})
+	})
 });
 
-const jsonDataRequest = new Promise((resolve, reject) => {
+
+const downloadAudio = (audio_data) => new Promise((resolve, reject) => {
 	const options = {
 		hostname: process.env.DB_SERVER_IP,
 		port: process.env.DB_SERVER_PORT,
-		path: '/api/data',
-		method: 'GET',
-		json:true
+		path: `/${audio_data.filepath}`,
+		method: 'GET'
 	}
 	const req = http.request(options, res => {
 		console.log(`statusCode: ${res.statusCode}`)
@@ -32,36 +47,4 @@ const jsonDataRequest = new Promise((resolve, reject) => {
 		reject(error)
 	})
 	req.end()
-})
-
-jsonDataRequest.then((data) => {
-	let json_data = JSON.parse(data.toString())
-	// console.log("json_data", json_data.audios)
-
-	json_data.audios.map((audio) => {
-		const options = {
-			hostname: process.env.DB_SERVER_IP,
-			port: process.env.DB_SERVER_PORT,
-			path: encodeURI(`/${audio.file}`),
-			method: 'GET',
-		}
-
-		const req = http.request(options, res => {
-			// console.log(`statusCode: ${res.statusCode}`)
-			
-			res.on('data', data => {
-				const filepath = `audios/${audio.id}.wav`
-				fs.writeFile(filepath, data, function (err) {
-					if (err) {
-						return console.log(err);
-					}
-					// console.log('wrote file:', filepath)
-				})
-			})
-		})
-		req.on('error', error => {
-			console.error(error)
-		})
-		req.end()
-	})
 })

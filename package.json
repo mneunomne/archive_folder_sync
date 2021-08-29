@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "node server.js"
+    "server": "node server.js",
+    "sync": "node sync.js",
+    "start": "npm run sync && npm run server"
   },
   "author": "",
   "license": "ISC",

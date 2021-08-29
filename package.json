@@ -1,0 +1,15 @@
+{
+  "name": "archive_folder_sync",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "node-osc": "^6.0.10"
+  }
+}

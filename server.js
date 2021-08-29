@@ -4,13 +4,13 @@ const fs = require('fs');
 
 require('dotenv').config()
 
-var oscServer = new Server(process.env.OSC_PORT, process.env.OSC_IP, () => {
-	console.log('OSC Server is listening');
+var oscServer = new Server(process.env.SYNC_OSC_PORT, process.env.SYNC_OSC_IP, () => {
+	console.log('OSC Server is listening', process.env.SYNC_OSC_IP, process.env.SYNC_OSC_PORT);
 });
 
-oscServer.on('message', function (msg) {
-	console.log(`Message: ${msg}`);
-	oscServer.close();
+oscServer.on('/new_audio', function (msg, data) {
+	console.log(`Message: ${msg}`, req);
+	// oscServer.close();
 });
 
 const jsonDataRequest = new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ const jsonDataRequest = new Promise((resolve, reject) => {
 
 jsonDataRequest.then((data) => {
 	let json_data = JSON.parse(data.toString())
-	console.log("json_data", json_data.audios)
+	// console.log("json_data", json_data.audios)
 
 	json_data.audios.map((audio) => {
 		const options = {
@@ -47,7 +47,7 @@ jsonDataRequest.then((data) => {
 		}
 
 		const req = http.request(options, res => {
-			console.log(`statusCode: ${res.statusCode}`)
+			// console.log(`statusCode: ${res.statusCode}`)
 			
 			res.on('data', data => {
 				const filepath = `audios/${audio.id}.wav`
@@ -55,7 +55,7 @@ jsonDataRequest.then((data) => {
 					if (err) {
 						return console.log(err);
 					}
-					console.log('wrote file:', filepath)
+					// console.log('wrote file:', filepath)
 				})
 			})
 		})
@@ -65,19 +65,3 @@ jsonDataRequest.then((data) => {
 		req.end()
 	})
 })
-
-/*
-let json_data = fs.readFileSync('public/db_test/data.json')
-let db_data = JSON.parse(json_data)
-let audios = db_data.audios
-
-audios.map(audio => {
-	console.log("audio", audio)
-	fs.copyFile(`public/${audio.file}`, `public/db/max_audios/${audio.id}.wav`, (err) => {
-		if (err) {
-			console.error("err", err)
-		};
-		console.log('source.txt was copied to destination.txt');
-	});
-})
-*/

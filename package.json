@@ -7,7 +7,8 @@
     "server": "nodemon server.js",
     "sync": "nodemon sync.js",
     "start": "nodemon run sync && npm run server",
-    "test": "nodemon test.js"
+    "test": "nodemon test.js",
+    "play": "nodemon play.js"
   },
   "author": "",
   "license": "ISC",

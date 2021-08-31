@@ -35,8 +35,8 @@ mongoose.connect(mongoUri, { useNewUrlParser: true }, function (err, res) {
 
 const io = require('socket.io-client');
 // Connect to server
-// var socket = io('https://pandemic-archive-of-voices-db.herokuapp.com');
-var socket = io('http://localhost:7777');
+var socket = io('https://pandemic-archive-of-voices-db.herokuapp.com');
+// var socket = io('http://localhost:7777');
 socket.connect();
 
 // Add a connect listener
@@ -59,39 +59,4 @@ socket.on('update', function (data) {
 			});
 		}
 	})
-
-	return
-	let audio_data = JSON.parse(data)
-	console.log('audio_data', audio_data)
-	// oscServer.close();
-	let new_filepath = `audios/${audio_data.id}.wav`
-	downloadAudio(audio_data).then(file_data => {
-		fs.writeFile(new_filepath, file_data, function (err) {
-			if (err) {
-				return console.log(err);
-			}
-			console.log('wrote file:', new_filepath)
-		})
-	})
-})
-
-// Max client
-const downloadAudio = (audio_data) => new Promise((resolve, reject) => {
-	const options = {
-		hostname: process.env.DB_SERVER_IP,
-		port: process.env.DB_SERVER_PORT,
-		path: `/${audio_data.filepath}`,
-		method: 'GET'
-	}
-	const req = http.request(options, res => {
-		console.log(`statusCode: ${res.statusCode}`)
-		res.on('data', d => {
-			resolve(d)
-		})
-	})
-	req.on('error', error => {
-		console.error('err', error)
-		reject(error)
-	})
-	req.end()
 })

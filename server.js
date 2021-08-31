@@ -9,10 +9,6 @@ require('dotenv').config()
 
 const client = new Client('10.10.48.88', 7400);
 
-client.send('/update', 0, () => {
-  console.log('sent update')
-});
-
 var oscServer = new Server(7400, '10.10.51.64', () => {
   console.log('OSC Server is listening');
 });
@@ -64,14 +60,16 @@ socket.on('update', function (data) {
 	console.log('[socket.io] received update message', data)
 	Audio.findOne(data, function (err, audio) {
 		console.log('audios', audio)
-		if (fs.existsSync(audio.path)) {
-			// file exists
-		} else {
+
 			const file = fs.createWriteStream(`audios/${audio.id}.wav`);
 			https.get(audio.path, function(response) {
 				console.log('downloaded ', audio.path)
 				response.pipe(file);
+				setTimeout(() => {
+					client.send('/update', `${audio.id}.wav`, () => {
+						console.log('sent update')
+					});
+				}, 0)
 			});
-		}
 	})
 })

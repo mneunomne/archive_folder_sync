@@ -33,6 +33,7 @@ mongoose.connect(mongoUri, { useNewUrlParser: true }, function (err, res) {
 				// file exists
 			} else {
 				const file = fs.createWriteStream(`audios/${audio.id}.wav`);
+				console.log(audio)
 				https.get(audio.path, function(response) {
 					console.log('downloaded ', audio.path)
 					response.pipe(file);

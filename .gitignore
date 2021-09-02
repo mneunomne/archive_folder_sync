@@ -1,3 +1,4 @@
 audios/*.wav
+texts/*.svg
 node_modules/
 .env

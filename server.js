@@ -7,11 +7,33 @@ const mongoose = require ("mongoose")
 require('dotenv').config()
 
 
-const client = new Client('10.10.48.88', 7400);
+const clientMax = new Client('10.10.48.88', 7400);
+
+const clientProcessing = new Client("192.168.178.64",12000);
 
 var oscServer = new Server(7400, '10.10.51.64', () => {
   console.log('OSC Server is listening');
 });
+
+
+/// send test
+/*
+clientProcessing.send('/new_audio', JSON.stringify({
+  "from": "Kazuki",
+  "file": "db/audios/5314577364/audio_10@26-12-2020_13-44-04.wav",
+  "id": 308,
+  "text": "クリスマスは今年もやって来る",
+  "from_id": 5314577364,
+  "duration_seconds": 5,
+  "lang": {
+      "name": "japanese",
+      "code": "ja",
+      "standard": "ISO 639-1"
+  }
+}), () => {
+  console.log('sent clientProcessing')
+});
+*/
 
 oscServer.on('message', function (msg) {
   console.log(`Message: ${msg}`);
@@ -65,11 +87,14 @@ socket.on('update', function (data) {
    https.get(audio.path, function(response) {
     console.log('downloaded ', audio.path)
     response.pipe(file);
-    setTimeout(() => {
-     client.send('/update', `${audio.id}.wav`, () => {
+    // send info to max
+    clientMax.send('/update', `${audio.id}.wav`, () => {
       console.log('sent update')
-     });
-    }, 0)
+    });
+    // send info to processing
+    clientProcessing.send('/new_audio', JSON.stringify(audio), () => {
+      console.log('sent update')
+    });
    });
  })
 })

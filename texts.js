@@ -21,22 +21,23 @@ https.get(server_url + '/api/data', res => {
     res.on('end', function(){
         var data = JSON.parse(body);
         //console.log("Got a response: ", data);
-        processTexts(data.audios)
+        audios.map((audio) => processText(audio))
     });
   }
 }).on('error', function(err){
   console.error("error: ", err);
 });
 
-const processTexts = function (audios) {
-  audios.map((audio) => {
-    let text = audio.text
-    const svg = textToSVG.getSVG(text, options);
-    let filepath = `${folder_path}${audio.id}.svg`
-    // console.log(svg);
-    fs.writeFile(filepath, svg, function (err) {
-      if (err) return console.log(err);
-      console.log(`${text} > ${filepath}`);
-    });
-  })
+const processText = function (audio) {
+  let text = audio.text
+  if (text.length == 0) {
+    return;
+  }
+  const svg = textToSVG.getSVG(text, options);
+  let filepath = `${folder_path}${audio.id}.svg`
+  // console.log(svg);
+  fs.writeFile(filepath, svg, function (err) {
+    if (err) return console.log(err);
+    console.log(`${text} > ${filepath}`);
+  });
 }

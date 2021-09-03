@@ -8,7 +8,7 @@ const server_url = 'https://pandemic-archive-of-voices-db.herokuapp.com'
 
 
 const attributes = {fill: 'black', stroke: 'black'};
-const options = {x: 5, y: 0, fontSize: 72, anchor: 'top', attributes: attributes};
+const options = {x: 0, y: 0, fontSize: 28, anchor: 'top', attributes: attributes};
 
 https.get(server_url + '/api/data', res => {
   console.log(`statusCode: ${res.statusCode}`)
@@ -21,7 +21,7 @@ https.get(server_url + '/api/data', res => {
     res.on('end', function(){
         var data = JSON.parse(body);
         //console.log("Got a response: ", data);
-        audios.map((audio) => processText(audio))
+        data.audios.map((audio) => processText(audio))
     });
   }
 }).on('error', function(err){

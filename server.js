@@ -4,15 +4,17 @@ const https = require('https')
 const fs = require('fs');
 const mongoose = require("mongoose")
 const TextToSVG = require('text-to-svg');
+const textToSVG = TextToSVG.loadSync('fonts/arial-unicode-ms.ttf');
 
 require('dotenv').config()
 
+const folder_path = 'texts/'
 
 const clientMax = new Client('10.10.48.88', 7400);
 
-const clientProcessing = new Client("192.168.178.64", 12000);
+const clientProcessing = new Client("10.10.51.69", 12000);
 
-var oscServer = new Server(7400, '10.10.51.64', () => {
+var oscServer = new Server(7400, '10.10.51.69', () => {
   console.log('OSC Server is listening');
 });
 
@@ -35,6 +37,8 @@ clientProcessing.send('/new_audio', JSON.stringify({
   console.log('sent clientProcessing')
 });
 */
+
+
 
 oscServer.on('message', function (msg) {
   console.log(`Message: ${msg}`);
@@ -102,7 +106,8 @@ socket.on('update', function (data) {
     processText(audio);
   })
 })
-
+const attributes = {fill: 'black', stroke: 'black'};
+const options = {x: 0, y: 0, fontSize: 28, anchor: 'top', attributes: attributes};
 const processText = function (audio) {
   let text = audio.text
   if (text.length == 0) {

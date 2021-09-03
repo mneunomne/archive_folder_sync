@@ -7,7 +7,9 @@
     "server": "nodemon server.js",
     "sync": "nodemon sync.js",
     "start": "nodemon run sync && npm run server",
-    "test": "nodemon test.js"
+    "test": "nodemon test.js",
+    "play": "nodemon play.js",
+    "texts": "nodemon texts.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +20,7 @@
     "node-osc": "^6.0.10",
     "nodemon": "^2.0.12",
     "socket.io": "^4.1.3",
-    "socket.io-client": "^4.1.3"
+    "socket.io-client": "^4.1.3",
+    "text-to-svg": "^3.1.5"
   }
 }

@@ -7,7 +7,7 @@ const mongoose = require ("mongoose")
 require('dotenv').config()
 
 
-const client = new Client('10.10.48.88', 7400);
+const client = new Client('10.10.48.111', 7400);
 
 var oscServer = new Server(7400, '10.10.51.64', () => {
   console.log('OSC Server is listening');

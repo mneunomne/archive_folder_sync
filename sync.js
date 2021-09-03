@@ -40,6 +40,7 @@ mongoose.connect(mongoUri, { useNewUrlParser: true }, function (err, res) {
 				});
 			}
 		})
+		mongoose.disconnect();
 	})
 })
 /*

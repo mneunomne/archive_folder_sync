@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon server.js",
+    "max": "nodemon server-max.js",
+    "processing": "nodemon server-processing.js",
     "sync": "nodemon sync.js",
     "start": "nodemon run sync && npm run server",
     "test": "nodemon test.js",

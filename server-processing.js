@@ -1,6 +1,4 @@
 const { Server, Client } = require('node-osc');
-const http = require('http')
-const https = require('https')
 const fs = require('fs');
 const mongoose = require("mongoose")
 const TextToSVG = require('text-to-svg');
@@ -8,48 +6,18 @@ const textToSVG = TextToSVG.loadSync('fonts/arial-unicode-ms.ttf');
 
 require('dotenv').config()
 
+// OSC
+const ip_address = process.env.PROCESSING_IP_ADDRESS
+const port = process.env.PROCESSING_PORT
+const clientProcessing = new Client(ip_address, port);
+
+// text-to-svg
 const folder_path = 'texts/'
+const attributes = {fill: 'black', stroke: 'black'};
+const options = {x: 0, y: 0, fontSize: 28, anchor: 'top', attributes: attributes};
 
-const clientMax = new Client('10.10.48.88', 7400);
-
-const clientProcessing = new Client("10.10.51.69", 12000);
-
-var oscServer = new Server(7400, '10.10.51.69', () => {
-  console.log('OSC Server is listening');
-});
-
-
-/// send test
-/*
-clientProcessing.send('/new_audio', JSON.stringify({
-  "from": "Kazuki",
-  "file": "db/audios/5314577364/audio_10@26-12-2020_13-44-04.wav",
-  "id": 308,
-  "text": "クリスマスは今年もやって来る",
-  "from_id": 5314577364,
-  "duration_seconds": 5,
-  "lang": {
-      "name": "japanese",
-      "code": "ja",
-      "standard": "ISO 639-1"
-  }
-}), () => {
-  console.log('sent clientProcessing')
-});
-*/
-
-
-
-oscServer.on('message', function (msg) {
-  console.log(`Message: ${msg}`);
-  oscServer.close();
-});
-
-/* -------------------------------------------------
-MongoDB
----------------------------------------------------*/
+// mongodb
 const mongoUri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOSTNAME}/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`;
-
 const Audio = mongoose.model('Audio', mongoose.Schema({
   id: String,
   name: String,
@@ -60,26 +28,25 @@ const Audio = mongoose.model('Audio', mongoose.Schema({
   lang: Object
 }))
 
-// MongoDb
 var mongoConnected = false
 mongoose.connect(mongoUri, { useNewUrlParser: true }, function (err, res) {
   if (err) {
     console.error(err)
     throw err
   }
-  var mongoConnected = true
+  mongoConnected = true
   console.log(`[MongoDB] Connected to database "${process.env.MONGODB_DATABASE}"`)
 })
 
+// socket
 const io = require('socket.io-client');
 // Connect to server
 var socket = io('https://pandemic-archive-of-voices-db.herokuapp.com');
 // var socket = io('http://localhost:7777');
 socket.connect();
-
 // Add a connect listener
 socket.on('connect', function (socket) {
-  console.log('Connected.');
+  console.log('[Socket.io] Connected.');
 });
 
 // on update event
@@ -87,28 +54,18 @@ socket.on('update', function (data) {
   console.log('[socket.io] received update message', data)
   Audio.findOne(data, function (err, audio) {
     console.log('[new audio]', audio)
-    // save audio file locally, then send update osc message
-    const file = fs.createWriteStream(`audios/${audio.id}.wav`);
-    https.get(audio.path, function (response) {
-      console.log('downloaded ', audio.path)
-      response.pipe(file);
-      // send info to max
-      clientMax.send('/update', `${audio.id}.wav`, () => {
-        console.log('sent update')
-      });
+    // generate svg file from new audio
+    processText(audio).then(audio => {
       // send info to processing
       clientProcessing.send('/new_audio', JSON.stringify(audio), () => {
         console.log('sent update')
       });
     });
-
-    // generate svg file from new audio
-    processText(audio);
   })
 })
-const attributes = {fill: 'black', stroke: 'black'};
-const options = {x: 0, y: 0, fontSize: 28, anchor: 'top', attributes: attributes};
-const processText = function (audio) {
+
+// text-to-svg process text
+const processText = (audio) => new Promise((resolve, reject) => {
   let text = audio.text
   if (text.length == 0) {
     return;
@@ -117,7 +74,11 @@ const processText = function (audio) {
   let filepath = `${folder_path}${audio.id}.svg`
   // console.log(svg);
   fs.writeFile(filepath, svg, function (err) {
-    if (err) return console.log(err);
+    if (err) {
+      reject(err)
+      return console.log(err);
+    }
+    resolve(audio)
     console.log(`${text} > ${filepath}`);
   });
-}
+})

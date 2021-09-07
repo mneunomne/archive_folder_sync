@@ -50,7 +50,7 @@ socket.on('connect', function (socket) {
 });
 
 // on update event
-socket.on('update', function (data) {
+socket.on('new_audio', function (data) {
   console.log('[socket.io] received update message', data)
   Audio.findOne(data, function (err, audio) {
     console.log('[new audio]', audio)
@@ -63,6 +63,20 @@ socket.on('update', function (data) {
     });
   })
 })
+
+socket.on('update_audio', function (data) {
+  Audio.findOne(data, function (err, audio) {
+    console.log('[new audio]', audio)
+    // generate svg file from new audio
+    processText(audio).then(audio => {
+      // send info to processing
+      clientProcessing.send('/update_audio', JSON.stringify(audio), () => {
+        console.log('sent update')
+      });
+    });
+  })
+})
+
 
 // text-to-svg process text
 const processText = (audio) => new Promise((resolve, reject) => {

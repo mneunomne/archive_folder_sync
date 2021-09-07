@@ -51,7 +51,7 @@ socket.on('connect', function (socket) {
 });
 
 // on update event
-socket.on('update', function (data) {
+socket.on('new_audio', function (data) {
   console.log('[socket.io] received update message', data)
   Audio.findOne(data, function (err, audio) {
     console.log('[new audio]', audio)

@@ -14,7 +14,7 @@ const clientProcessing = new Client(ip_address, port);
 // text-to-svg
 const folder_path = 'texts/'
 const attributes = {fill: 'black', stroke: 'black'};
-const options = {x: 0, y: 0, fontSize: 28, anchor: 'top', attributes: attributes};
+const options = {x: 0, y: 0, fontSize: 32, anchor: 'top', attributes: attributes};
 
 // mongodb
 const mongoUri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOSTNAME}/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`;

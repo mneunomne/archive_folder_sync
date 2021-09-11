@@ -36,6 +36,12 @@ mongoose.connect(mongoUri, { useNewUrlParser: true }, function (err, res) {
   }
   mongoConnected = true
   console.log(`[MongoDB] Connected to database "${process.env.MONGODB_DATABASE}"`)
+
+  Audio.find({}, function (err, audios) {
+    audios.map((audio) => {
+      processText(audio)
+    })
+  })
 })
 
 // socket
@@ -48,6 +54,8 @@ socket.connect();
 socket.on('connect', function (socket) {
   console.log('[Socket.io] Connected.');
 });
+
+
 
 // on update event
 socket.on('new_audio', function (data) {

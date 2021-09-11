@@ -3,8 +3,6 @@ const http = require('http')
 const https = require('https')
 const fs = require('fs');
 const mongoose = require("mongoose")
-const TextToSVG = require('text-to-svg');
-const textToSVG = TextToSVG.loadSync('fonts/arial-unicode-ms.ttf');
 
 require('dotenv').config()
 
